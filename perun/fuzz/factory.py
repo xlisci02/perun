@@ -505,7 +505,7 @@ def run_fuzzing_for_command(cmd, args, initial_workload, collector, postprocesso
         interpret.save_log_files(output_dirs["logs"], time_data, degradations, time_for_cov,
                                  max_covs, parents_fitness_values, base_cov, hangs, faults)
         # remove remaining mutations
-        filesystem.del_temp_files(final_results, hangs, faults, output_dir)
+        filesystem.del_temp_files(parents, final_results, hangs, faults, output_dir)
 
         general_fuzz_information["end_time"] = time.time()
         general_fuzz_information["worst-case"] = parents_fitness_values[-1]["mut"]["path"]
@@ -666,7 +666,7 @@ def run_fuzzing_for_command(cmd, args, initial_workload, collector, postprocesso
                              max_covs, parents_fitness_values, base_cov, hangs, faults)
 
     # deletes parents which are not final results, good parents but not causing deg
-    filesystem.del_temp_files(final_results, hangs, faults, output_dir)
+    filesystem.del_temp_files(parents, final_results, hangs, faults, output_dir)
     # for x in parents_fitness_values:
     #     print(x["value"], "=", x["mut"]["cov"]/base_cov, "*( 1 +", x["mut"]["deg_ratio"], ")")
 

@@ -61,7 +61,7 @@ def make_output_dirs(output_dir, new_dirs):
     # os.makedirs(output_dir + "/diffs", exist_ok=True)
     # return output_dir + "/hangs", output_dir + "/faults", output_dir + "/diffs"
 
-def del_temp_files(final_results, hangs, faults, output_dir):
+def del_temp_files(parents, final_results, hangs, faults, output_dir):
     """ Deletes temporary files that are not positive results of fuzz testing
 
     :param list final_results: succesfully mutated files causing degradation, yield of testing
@@ -71,7 +71,13 @@ def del_temp_files(final_results, hangs, faults, output_dir):
     """
 
     print("Removing remaining mutations ...")
-    waste = [mut for mut in final_results if mut not in hangs and mut not in faults]
+    waste = []
+    for mut in parents:
+        if mut not in final_results and mut["path"].startswith(output_dir):
+            if mut not in hangs and mut not in faults:
+                waste.append(mut)
+    
+    # waste = [mut for mut in final_results if mut not in hangs and mut not in faults]
     for mut in waste:
         if path.isfile(mut["path"]):
             os.remove(mut["path"])

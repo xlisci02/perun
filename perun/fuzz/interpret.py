@@ -5,6 +5,8 @@ __author__ = 'Matus Liscinsky'
 import difflib
 import numpy as np
 import matplotlib.pyplot as plt
+# Force matplotlib to not use any Xwindows backend.
+plt.switch_backend('agg')
 import os.path as path
 import scipy.stats.mstats as stats
 
