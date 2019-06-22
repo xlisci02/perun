@@ -1807,11 +1807,6 @@ def test_fuzzing_correct(pcs_full):
     process.communicate()
     process.wait()
     ubt_test = os.path.dirname(examples) + "/UBT/build/ubt"
-    print(os.path.isdir(os.path.dirname(examples)+"/UBT"))
-    print(os.path.isfile(os.path.dirname(examples) + "/UBT/build/ubt"))
-    print(os.path.isfile(os.path.dirname(examples) + '/UBT/input.txt'))
-    print(os.path.isdir(os.path.dirname(examples) + '/UBT/src'))
-    print(os.path.isdir(os.path.dirname(examples) + '/UBT/build'))
     result = runner.invoke(cli.fuzz_cmd, [
         '--cmd', ubt_test,
         '--output-dir', '.',
