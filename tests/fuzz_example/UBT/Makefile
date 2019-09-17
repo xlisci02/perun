@@ -20,4 +20,4 @@ main.o:
 
 .PHONY : clean
 clean:
-	rm $(build)/*
+	rm -rf $(build)/*

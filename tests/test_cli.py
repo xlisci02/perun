@@ -1770,7 +1770,7 @@ def test_fuzzing_correct(pcs_full):
 
     # building custom tail program for testing
     process = subprocess.Popen(
-        ["make", "-C", os.path.dirname(examples)+"/tail"])
+        ["make", "clean", "all", "-C", os.path.dirname(examples)+"/tail"])
     process.communicate()
     process.wait()
 
@@ -1790,7 +1790,7 @@ def test_fuzzing_correct(pcs_full):
     ])
     assert result.exit_code == 0
     assert 'Fuzzing successfully finished' in result.output
-
+    print("After 1.TEST")
     # 02. Testing tail on a directory of txt files with coverage
     txt_workload = os.path.dirname(examples) + '/samples/txt'
 
@@ -1809,7 +1809,7 @@ def test_fuzzing_correct(pcs_full):
     ])
     assert result.exit_code == 0
     assert 'Fuzzing successfully finished' in result.output
-
+    print("After 2.TEST")
     # 03. Testing tail with xml files and regex_rules
     xml_workload = os.path.dirname(examples) + '/samples/xml/input.xml'
     regex_file = os.path.dirname(examples) + '/rules.yaml'
@@ -1826,7 +1826,7 @@ def test_fuzzing_correct(pcs_full):
     ])
     assert result.exit_code == 0
     assert 'Fuzzing successfully finished' in result.output
-
+    print("After 3.TEST")
     # 04. Testing tail with empty xml file
     xml_workload = os.path.dirname(examples) + '/samples/xml/empty.xml'
 
@@ -1839,7 +1839,7 @@ def test_fuzzing_correct(pcs_full):
     ])
     assert result.exit_code == 0
     assert 'Fuzzing successfully finished' in result.output
-
+    print("After 4.TEST")
     # 05. Testing tail with wierd file type and bad paths for coverage testing (-s, -g)
     wierd_workload = os.path.dirname(
         examples) + '/samples/undefined/wierd.california'
@@ -1857,11 +1857,11 @@ def test_fuzzing_correct(pcs_full):
     ])
     assert result.exit_code == 0
     assert 'Fuzzing successfully finished' in result.output
-
+    print("After 5.TEST")
     # 06. Testing for SIGABRT during init testing
     num_workload = os.path.dirname(examples) + '/samples/txt/number.txt'
     process = subprocess.Popen(
-        ["make", "-C", os.path.dirname(examples)+"/sigabrt-init"])
+        ["make", "clean", "all", "-C", os.path.dirname(examples)+"/sigabrt-init"])
     process.communicate()
     process.wait()
 
@@ -1876,10 +1876,10 @@ def test_fuzzing_correct(pcs_full):
     ])
     assert result.exit_code == 1
     assert 'SIGABRT' in result.output
-
+    print("After 6.TEST")
     # 07. Testing for SIGABRT during fuzz testing
     process = subprocess.Popen(
-        ["make", "-C", os.path.dirname(examples)+"/sigabrt-test"])
+        ["make", "clean", "all", "-C", os.path.dirname(examples)+"/sigabrt-test"])
     process.communicate()
     process.wait()
 
@@ -1897,10 +1897,10 @@ def test_fuzzing_correct(pcs_full):
     ])
     assert result.exit_code == 0
     assert 'SIGABRT' in result.output
-
+    print("After 7.TEST")
     # 08. Testing for hang during init testing
     process = subprocess.Popen(
-        ["make", "-C", os.path.dirname(examples)+"/hang-init"])
+        ["make", "clean", "all", "-C", os.path.dirname(examples)+"/hang-init"])
     process.communicate()
     process.wait()
 
@@ -1917,10 +1917,10 @@ def test_fuzzing_correct(pcs_full):
     ])
     assert result.exit_code == 1
     assert 'Timeout' in result.output
-
+    print("After 8.TEST")
     # 09. Testing for hang during fuzz testing
     process = subprocess.Popen(
-        ["make", "-C", os.path.dirname(examples)+"/hang-test"])
+        ["make", "clean", "all", "-C", os.path.dirname(examples)+"/hang-test"])
     process.communicate()
     process.wait()
 
@@ -1939,10 +1939,10 @@ def test_fuzzing_correct(pcs_full):
     ])
     assert result.exit_code == 0
     assert 'Timeout' in result.output
-
+    print("After 9.TEST")
     # 10. Testing UBT for degs
     process = subprocess.Popen(
-        ["make", "-C", os.path.dirname(examples)+"/UBT"])
+        ["make", "clean", "all", "-C", os.path.dirname(examples)+"/UBT"])
     process.communicate()
     process.wait()
 
@@ -1963,7 +1963,7 @@ def test_fuzzing_correct(pcs_full):
     ])
     assert result.exit_code == 0
     assert 'Fuzzing successfully finished' in result.output
-
+    print("After 10.TEST")
     # 11. Testing UBT for deg in initial test
 
     result = runner.invoke(cli.fuzz_cmd, [
@@ -1981,8 +1981,8 @@ def test_fuzzing_correct(pcs_full):
     ])
     assert result.exit_code == 0
     assert 'Fuzzing successfully finished' in result.output
-
-
+    print("After 11.TEST")
+    assert 0 == 1
 def test_fuzzing_incorrect(pcs_full):
     """Runs basic tests for fuzzing CLI """
     runner = CliRunner()
