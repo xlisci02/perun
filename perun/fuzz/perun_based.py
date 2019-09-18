@@ -95,4 +95,7 @@ def check_for_change(base_pg, target_pg):
             print(perf_change.result)
             if(perf_change.result == PerformanceChange.Degradation):
                 degs += 1
+                print("degs:", degs)
+            else:
+                print(perf_change.result)
     return degs/checks

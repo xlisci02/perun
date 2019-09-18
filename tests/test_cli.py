@@ -1963,6 +1963,7 @@ def test_fuzzing_correct(pcs_full):
     ])
     assert result.exit_code == 0
     assert 'Fuzzing successfully finished' in result.output
+    print(result.output)
     print("After 10.TEST")
     # 11. Testing UBT for deg in initial test
 
@@ -1981,6 +1982,7 @@ def test_fuzzing_correct(pcs_full):
     ])
     assert result.exit_code == 0
     assert 'Fuzzing successfully finished' in result.output
+    print(result.output)
     print("After 11.TEST")
     assert 0 == 1
 def test_fuzzing_incorrect(pcs_full):
