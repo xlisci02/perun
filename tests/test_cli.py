@@ -1952,7 +1952,7 @@ def test_fuzzing_correct(pcs_full):
         '--cmd', ubt_test,
         '--output-dir', '.',
         '--initial-workload', os.path.dirname(examples) + '/UBT/input.txt',
-        '--timeout', '1',
+        '--timeout', '10',
         '--hang-timeout', '1',
         '--source-path', os.path.dirname(examples) + '/UBT/src',
         '--gcno-path', os.path.dirname(examples) + '/UBT/build',
@@ -1973,7 +1973,7 @@ def test_fuzzing_correct(pcs_full):
         '/UBT/a_small_input.txt',
         '--initial-workload', os.path.dirname(examples) +
         '/UBT/sorted_input.txt',
-        '--timeout', '1',
+        '--timeout', '10',
         '--hang-timeout', '0.01',
         '--max-size-percentual', '2',
         '--mut-count-strategy', 'unitary',
