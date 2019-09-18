@@ -1933,7 +1933,7 @@ def test_fuzzing_correct(pcs_full):
         '--timeout', '1',
         '--source-path', os.path.dirname(hang_test),
         '--gcno-path', os.path.dirname(hang_test),
-        '--hang-timeout', '0.001',
+        '--hang-timeout', '0.1',
         '--execs', '1',
         '--no-plotting',
     ])
