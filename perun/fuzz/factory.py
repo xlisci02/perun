@@ -8,7 +8,6 @@ import itertools
 import numpy as np
 import os
 import os.path as path
-import random
 import signal
 import sys
 import time
@@ -20,6 +19,8 @@ import perun.utils.decorators as decorators
 import perun.fuzz.interpret as interpret
 import perun.fuzz.filesystem as filesystem
 import perun.fuzz.filetype as filetype
+import perun.utils.log as log
+import perun.fuzz.randomizer as randomizer
 import perun.utils as utils
 
 # to ignore numpy division warnings
@@ -87,7 +88,7 @@ def fuzz_question(strategy, fuzz_stats, index):
             probability = 0.1 if (probability < 0.1) else probability
         except ZeroDivisionError:
             probability = 1
-        rand = random.uniform(0, 1)
+        rand = randomizer.rand_from_range(0, 10)/10
         return 1 if rand <= probability else 0
     elif strategy == "mixed":
         try:
@@ -95,7 +96,7 @@ def fuzz_question(strategy, fuzz_stats, index):
             probability = 0.1 if (probability < 0.1) else probability
         except ZeroDivisionError:
             probability = 1
-        rand = random.uniform(0, 1)
+        rand = randomizer.rand_from_range(0, 10)/10
         return min(int(fuzz_stats[index])+1, MAX_FILES_PER_RULE) if rand <= probability else 0
 
 
@@ -156,11 +157,11 @@ def fuzz(parent, max_bytes, fuzz_stats, output_dir, fuzzing_methods, strategy):
     file, file_extension = path.splitext(file)
 
     # fuzzing
-    for i in range(len(fuzzing_methods)):
+    for i, method in enumerate(fuzzing_methods):
         for _ in range(fuzz_question(strategy, fuzz_stats, i)):
             fuzzed_lines = lines[:]
             # calling specific fuzz method with copy of parent
-            fuzzing_methods[i][0](fuzzed_lines)
+            method[0](fuzzed_lines)
 
             # compare, whether new lines are the same
             if same_lines(lines, fuzzed_lines, is_binary):
@@ -198,9 +199,9 @@ def print_legend(fuzz_stats, fuzzing_methods):
     """
     print("="*32 + " MUTATION RULES " + "="*32)
     print("id\t Caused deg | cov incr\t Desription ")
-    for i in range(len(fuzzing_methods)):
+    for i, method in enumerate(fuzzing_methods):
         print(str(i) + "\t " +
-              str(fuzz_stats[i]) + " times" + "\t\t " + fuzzing_methods[i][1])
+              str(fuzz_stats[i]) + " times" + "\t\t " + method[1])
 
 
 def print_results(general_fuzz_information, fuzz_stats, fuzzing_methods):
@@ -266,7 +267,7 @@ def rate_parent(parents_fitness_values, parent, base_cov=1):
     :param list parents_fitness_values: sorted list of fitness score of parents
     :param str parent: path to a file which is classified as parent
     :param int base_cov: baseline coverage
-    :return int: 1 if files is the same as some parent, otherwise 0
+    :return int: 1 if a file is the same as any parent, otherwise 0
     """
     increase_cov_rate = parent["cov"]/base_cov
 
@@ -278,17 +279,17 @@ def rate_parent(parents_fitness_values, parent, base_cov=1):
             {"value": fitness_value, "mut": parent})
         return 0
     else:
-        for index in range(len(parents_fitness_values)):
-            if fitness_value <= parents_fitness_values[index]["value"]:
+        for index, par_fit_val in enumerate(parents_fitness_values):
+            if fitness_value <= par_fit_val["value"]:
                 parents_fitness_values.insert(
                     index, {"value": fitness_value, "mut": parent})
                 return 0
             # if the same file was generated before
-            elif abs(fitness_value - parents_fitness_values[index]["value"]) <= FP_ALLOWED_ERROR:
+            elif abs(fitness_value - par_fit_val["value"]) <= FP_ALLOWED_ERROR:
                 # additional file comparing
                 is_binary_file = filetype.get_filetype(parent["path"])[0]
                 mode = "rb" if is_binary_file else "r"
-                if same_lines(open(parents_fitness_values[index]["mut"]["path"], mode).readlines(),
+                if same_lines(open(par_fit_val["mut"]["path"], mode).readlines(),
                               open(parent["path"], mode).readlines(), is_binary_file):
                     return 1
 
@@ -299,9 +300,9 @@ def update_rate(parents_fitness_values, parent):
     :param list parents_fitness_values: sorted list of fitness score of parents
     :param str parent: path to a file which is classified as parent
     """
-    for index in range(len(parents_fitness_values)):
-        if parents_fitness_values[index]["mut"] == parent:
-            fitness_value = parents_fitness_values[index]["value"] * (
+    for index, par_fit_val in enumerate(parents_fitness_values):
+        if par_fit_val["mut"] == parent:
+            fitness_value = par_fit_val["value"] * (
                 1 + parent["deg_ratio"])
             del parents_fitness_values[index]
             break
@@ -333,7 +334,7 @@ def choose_parent(parents_fitness_values, num_intervals=5):
     """
     num_of_parents = len(parents_fitness_values)
     if num_of_parents < num_intervals:
-        return (random.choice(parents_fitness_values))["mut"]
+        return (randomizer.rand_choice(parents_fitness_values))["mut"]
 
     triangle_num = (num_intervals*num_intervals + num_intervals) / 2
     bottom = 0
@@ -356,7 +357,7 @@ def choose_parent(parents_fitness_values, num_intervals=5):
     interval_idx = np.random.choice(
         range(num_intervals), replace=False, p=weights)
     # choose a parent from the interval
-    return (random.choice(parents_fitness_values[intervals[interval_idx][0]:
+    return (randomizer.rand_choice(parents_fitness_values[intervals[interval_idx][0]:
                                                  intervals[interval_idx][1]]))["mut"]
 
 
@@ -463,7 +464,6 @@ def run_fuzzing_for_command(cmd, args, initial_workload, collector, postprocesso
 
     print_msg("INITIAL TESTING COMPLETED")
     execs = 0
-
     # Time series plotting
     time_data = [0]
     degradations = [0]
@@ -535,7 +535,7 @@ def run_fuzzing_for_command(cmd, args, initial_workload, collector, postprocesso
                 mutations = fuzz(current_workload, max_bytes, fuzz_stats,
                                  output_dir, fuzzing_methods, kwargs["mut_count_strategy"])
 
-                for i in range(len(mutations)):
+                for i, _ in enumerate(mutations):
                     try:
                         execs += 1
                         general_fuzz_information["cov_execs"] += 1
@@ -568,9 +568,6 @@ def run_fuzzing_for_command(cmd, args, initial_workload, collector, postprocesso
                             # the same file as previously generated
                             os.remove(mutations[i]["path"])
                         else:
-                            # print("Increase of coverage",
-                                #   result, mutations[i])
-                            # print("|", end=' ')
                             general_fuzz_information["max_cov"] = parents_fitness_values[-1]["mut"]["cov"] / base_cov
                             parents.append(mutations[i])
                             interesting_workloads.append(mutations[i])
@@ -596,7 +593,7 @@ def run_fuzzing_for_command(cmd, args, initial_workload, collector, postprocesso
 
         print_msg("Performance testing")
 
-        for i in range(len(interesting_workloads)):
+        for i, _ in enumerate(interesting_workloads):
             base_result_profile, base_copy = itertools.tee(
                 base_result_profile)  # creates copy of generator
 

@@ -224,6 +224,7 @@ def get_coverage_info(gcov_version, source_files, gcno_path, cwd, gcov_files):
             for line in fp:
                 try:
                     execs += int(line.split(":")[0])
+
                 except ValueError:
                     continue
         fp.close()
