@@ -127,6 +127,8 @@ def baseline_testing(executable, workloads, config, **_):
     :return tuple: median of measured coverages, paths to .gcov files, paths to source_files
     """
     # get source files (.c, .cc, .cpp)
+    print("gcov", get_gcov_version())
+    print("gcc", execute_bin(["gcc", "--version"]))
     config.coverage.source_files = get_src_files(config.coverage.source_path)
     return get_initial_coverage(executable, workloads, config)
 
