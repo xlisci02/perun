@@ -507,6 +507,7 @@ def run_fuzzing_for_command(executable, input_sample, collector, postprocessor, 
         # avoiding possible further zero division
         fuzz_progress.base_cov = Coverage([],[]) if config.new_approach else 1
         config.coverage_testing = False
+        print("fuzz_progress.base_cov:", fuzz_progress.base_cov)
         log.warn("No .gcno files were found.")
 
     log.info("Performing perun-based testing on parent seeds", end=" ")

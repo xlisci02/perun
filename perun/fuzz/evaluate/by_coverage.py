@@ -154,9 +154,9 @@ def get_initial_coverage(executable, seeds, config):
             log.error("Initial testing with file " + seed.path +
                       " caused " + exit_report["output"])
         seed.cov = get_coverage_info(os.getcwd(), config)
-
+        print("seed.cov = ", seed.cov)
         coverages.append(seed.cov)
-
+    print("coverages:", coverages)
     # new approach
     if config.new_approach:
         inc_median = helpers.median_vector([vecs[0] for vecs in coverages])
@@ -334,6 +334,7 @@ def get_coverage_info(cwd, config):
         command = ["gcov", "-i", "-o", config.coverage.gcno_path]
     else:
         command = ["gcov", "-o", config.coverage.gcno_path]
+    print("command: ", command)
     command.extend(config.coverage.source_files)
     execute_bin(command)
 
@@ -352,15 +353,18 @@ def get_coverage_info(cwd, config):
                 data = json.loads(gcov_fp.read().decode('utf-8'))
                 # old approach using JSON
                 if not config.new_approach:
+                    print("old approach JSON")
                     execs += parse_gcov_JSON(data)
                 # new approach
                 else:
+                    print("new approach JSON")
                     new_inc, new_exc = get_vectors_from_gcov_JSON(
                         data, config.coverage.callgraph)
                     inc_vec = helpers.sum_vectors_piecewise(inc_vec, new_inc)
                     exc_vec = helpers.sum_vectors_piecewise(exc_vec, new_exc)
         # not JSON format (older gcov version)
         else:
+            print("Not JSON")
             with open(gcov_file, "r") as gcov_fp:
                 for line in gcov_fp:
                     execs += parse_line(line, config.coverage)
